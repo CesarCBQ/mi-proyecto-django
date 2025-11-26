@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>{{ libro.titulo }}</h1>
+    <p>Autor: {{ libro.autor.nombre }}</p>
+    <p>Categoría: {{ libro.categoria.nombre }}</p>
+
+    <h2 class="mt-5">Reseñas de la Comunidad</h2>
+    <hr>
+    
+    {% for resena in reseñas %}
+        <div class="card mb-3 p-3">
+            <p><strong>{{ resena.usuario.username }}</strong> — {{ resena.rating }}/5</p>
+            <p>{{ resena.contenido }}</p>
+            <small class="text-muted">{{ resena.fecha_creacion|date:"d M Y, h:i A" }}</small>
+        </div>
+    {% empty %}
+        <p class="alert alert-info">Sé el primero en reseñar este libro.</p>
+    {% endfor %}
+
+    <h3 class="mt-5">Deja tu Reseña</h3>
+    
+    {% if user.is_authenticated %}
+        <form method="post" action="{% url 'usuarios:crear_resena' libro.id %}" class="card p-4 shadow-sm">
+            {% csrf_token %}
+            
+            {# Renderiza el formulario con estilos de Bootstrap #}
+            {% for field in form_resena %}
+                <div class="mb-3">
+                    <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                        <small class="text-danger">{{ field.errors }}</small>
+                    {% endif %}
+                </div>
+            {% endfor %}
+            
+            <button type="submit" class="btn btn-success mt-3">Enviar Reseña</button>
+        </form>
+    {% else %}
+        <p class="alert alert-warning">Debes <a href="{% url 'admin:login' %}">iniciar sesión</a> para dejar una reseña.</p>
+    {% endif %}
+
+{% endblock %}

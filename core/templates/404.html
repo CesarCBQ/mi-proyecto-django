@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block title %}Página no encontrada (404){% endblock %}
+
+{% block content %}
+    <h1>Error 404: ¡Libro no encontrado! 🤷‍♀️</h1>
+    <p>Lo sentimos, la página o el recurso que buscas no existe en nuestra biblioteca.</p>
+    <a href="{% url 'home' %}">Volver a la página principal</a>
+{% endblock %}

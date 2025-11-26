@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Listado de Libros (Firebase NoSQL){% endblock %}
+
+{% block content %}
+    <h1 class="mb-4">📚 Libros Disponibles (Versión Firebase/Firestore)</h1>
+    <p class="alert alert-info">
+        Esta vista obtiene los datos de **Cloud Firestore**, cumpliendo con el requisito de la base de datos no relacional.
+    </p>
+
+    <div class="row">
+        {% for libro in libros %}
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">{{ libro.titulo }}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">Autor: {{ libro.autor_nombre }}</h6>
+                    <a href="#" class="btn btn-warning btn-sm">Ver Detalles (Firebase)</a> 
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <p class="alert alert-info">No hay libros registrados en Firebase aún. Cárgalos manualmente.</p>
+        {% endfor %}
+    </div>
+{% endblock content %}
