@@ -33,9 +33,9 @@
            Si el objeto NO existe (Creación), el botón Cancelar va a la lista principal. 
         #}
         {% if object %}
-            <a href="{% url 'detalle_libro' object.slug %}" class="btn btn-secondary">Cancelar</a>
+            <a href="{% url 'libros:detalle_libro' libro.slug %}" class="btn btn-secondary">Cancelar</a>
         {% else %}
-            <a href="{% url 'lista_libros' %}" class="btn btn-secondary">Cancelar</a>
+            <a href="{% url 'home' %}" class="btn btn-secondary">Cancelar</a>
         {% endif %}
 
     </form>

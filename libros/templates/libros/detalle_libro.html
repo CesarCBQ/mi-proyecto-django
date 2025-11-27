@@ -19,10 +19,10 @@
         <div class="alert alert-danger p-3 d-flex justify-content-start align-items-center">
             <h5 class="mb-0 me-3">Opciones de Administrador:</h5>
             
-            <a href="{% url 'editar_libro' slug=libro.slug %}" class="btn btn-warning me-2">📝 Editar Libro</a> 
+            <a href="{% url 'libros:editar_libro' libro.slug %}" class="btn btn-warning me-2">📝 Editar Libro</a> 
             
             {# 🟢 ¡CORREGIDO! Usamos slug en lugar de pk para coincidir con la URL. 🟢 #}
-            <a href="{% url 'eliminar_libro' slug=libro.slug %}" class="btn btn-danger">🗑️ Eliminar Libro</a>
+            <a href="{% url 'libros:eliminar_libro' libro.slug %}" class="btn btn-danger">🗑️ Eliminar Libro</a>
         </div>
     {% endif %}
 

@@ -13,7 +13,7 @@
     <header>
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
             <div class="container-fluid">
-                <a class="navbar-brand" href="{% url 'lista_libros' %}">📚 Mi Biblioteca</a>
+                <a class="navbar-brand" href="{% url 'home' %}">📚 Mi Biblioteca</a>
                 <div class="collapse navbar-collapse">
                     <ul class="navbar-nav ms-auto">
                         {% if user.is_authenticated %}
@@ -38,76 +38,6 @@
         {% block content %}
         {% endblock content %}
     </main>
-
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-
-    <script>
-        // 2. Configuración de tu proyecto de Firebase (REEMPLAZA ESTOS VALORES)
-        const firebaseConfig = {
-            apiKey: "TU_API_KEY_DEL_PROYECTO",
-            authDomain: "django-9946d.firebaseapp.com", // Reemplaza con tu project_id
-            projectId: "django-9946d", 
-            storageBucket: "django-9946d.appspot.com",
-            messagingSenderId: "TU_SENDER_ID",
-            appId: "TU_APP_ID"
-        };
-
-        // 3. Inicializar Firebase
-        const app = firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const provider = new firebase.auth.GoogleAuthProvider();
-
-        // 4. Función que maneja el envío del token al backend de Django
-        async function sendTokenToDjango(token) {
-            const csrfToken = '{{ csrf_token }}'; // Obtiene el token CSRF de Django
-
-            try {
-                const response = await fetch('{% url "firebase_login" %}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': csrfToken // Envía el token CSRF para seguridad
-                    },
-                    body: JSON.stringify({ id_token: token })
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    console.log("Login exitoso en Django. Redirigiendo...");
-                    // 5. Redirigir al usuario
-                    window.location.href = data.redirect; 
-                } else {
-                    alert('Error en el backend de Django: ' + data.error);
-                }
-
-            } catch (error) {
-                console.error("Error al enviar el token a Django:", error);
-                alert('Fallo de conexión.');
-            }
-        }
-
-        // 6. Listener para el botón de login
-        document.getElementById('firebase-login-btn')?.addEventListener('click', async () => {
-            try {
-                // Abre el pop-up de Google Login
-                const result = await auth.signInWithPopup(provider);
-                
-                // Obtiene el ID Token del usuario de Firebase
-                const token = await result.user.getIdToken();
-                
-                // Envía el token al servidor de Django
-                await sendTokenToDjango(token);
-
-            } catch (error) {
-                // Manejar errores de pop-up, cierre o denegación
-                console.error("Error de autenticación de Firebase:", error.code, error.message);
-                alert("Fallo el inicio de sesión. Inténtalo de nuevo.");
-            }
-        });
-    </script>
-    
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

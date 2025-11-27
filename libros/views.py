@@ -6,13 +6,6 @@ from django.utils.text import slugify
 
 # Seguridad
 from django.contrib.auth.mixins import UserPassesTestMixin
-# 🟢 IMPORTACIONES PARA FIREBASE AUTH 🟢
-from firebase_admin import auth
-from django.contrib.auth import login
-from django.contrib.auth.models import User
-from django.views.decorators.http import require_POST
-from django.http import JsonResponse
-import json 
 
 
 from .models import Categoria, Libro, Autor
@@ -33,9 +26,13 @@ class SuperuserRequiredMixin(UserPassesTestMixin):
 # ----------------------------------------------------------------------
 class LibroListView(ListView):
     model = Libro
-    template_name = 'libros/lista_libros.html' 
+    template_name = 'libros/home.html' 
     context_object_name = 'libros'
     paginate_by = 10 
+    # 🌟 CORRECCIÓN APLICADA: Cambiar el orden a 'pk' (Primary Key) 
+    # para asegurar que los libros 1 a 10 aparezcan primero, 
+    # satisfaciendo el test de paginación.
+    ordering = ['pk'] 
 
 # VISTA FUNCIONAL - Detalle de Libro (Ruta Dinámica)
 def detalle_libro(request, slug):
@@ -62,21 +59,21 @@ class AutorCreateView(SuperuserRequiredMixin, CreateView):
     model = Autor
     fields = ['nombre', 'biografia', 'fecha_nacimiento'] 
     template_name = 'libros/crear_autor.html' 
-    success_url = reverse_lazy('lista_libros')
+    success_url = reverse_lazy('home')
 
 # 🚀 VISTA GENÉRICA (CreateView) - Crear Categoría
 class CategoriaCreateView(SuperuserRequiredMixin, CreateView):
     model = Categoria
     fields = ['nombre'] 
     template_name = 'libros/crear_autor.html' 
-    success_url = reverse_lazy('lista_libros')
+    success_url = reverse_lazy('home')
 
 # 🚀 VISTA GENÉRICA (CreateView) - Crear Libro
 class LibroCreateView(SuperuserRequiredMixin, CreateView):
     model = Libro
     fields = ['titulo', 'isbn', 'fecha_publicacion', 'autor', 'categoria']
     template_name = 'libros/libro_form.html'
-    success_url = reverse_lazy('lista_libros') 
+    success_url = reverse_lazy('home') 
 
     # 🟢 MÉTODO AGREGADO PARA PREVENIR EL NoReverseMatch 🟢
     def form_valid(self, form):
@@ -93,58 +90,11 @@ class LibroUpdateView(SuperuserRequiredMixin, UpdateView):
     template_name = 'libros/libro_form.html'
     
     def get_success_url(self):
-        return reverse_lazy('detalle_libro', kwargs={'slug': self.object.slug})
+        # 🟢 CORRECCIÓN PREVIA: Usamos el namespace para el reverso.
+        return reverse_lazy('libros:detalle_libro', kwargs={'slug': self.object.slug})
 
 # 🚀 VISTA GENÉRICA (DeleteView) - Eliminar Libro
 class LibroDeleteView(SuperuserRequiredMixin, DeleteView):
     model = Libro
     template_name = 'libros/libro_confirm_delete.html' 
-    success_url = reverse_lazy('lista_libros')
-
-# ----------------------------------------------------------------------
-# --- VISTA DE AUTENTICACIÓN FIREBASE ---
-# ----------------------------------------------------------------------
-
-@require_POST
-def firebase_login_view(request):
-    """
-    Recibe el token de ID de Firebase del cliente, lo verifica, sincroniza el usuario 
-    con la base de datos de Django y autentica la sesión.
-    """
-    try:
-        # Asegúrate de que el frontend envíe el token en el cuerpo JSON
-        data = json.loads(request.body)
-        id_token = data.get('id_token')
-        
-        if not id_token:
-            return JsonResponse({'error': 'Token de ID no proporcionado.'}, status=400)
-
-        # 1. Verificar y decodificar el token con el SDK Admin
-        decoded_token = auth.verify_id_token(id_token)
-        uid = decoded_token.get('uid')
-        email = decoded_token.get('email')
-        
-        # 2. Sincronizar usuario de Firebase con Usuario de Django
-        try:
-            # Busca al usuario existente por email
-            user = User.objects.get(email=email)
-        except User.DoesNotExist:
-            # Si no existe, crea un nuevo usuario de Django
-            username = email.split('@')[0] if email else uid 
-            user = User.objects.create_user(username=username, email=email)
-            user.set_unusable_password() 
-            user.save()
-
-        # 3. Iniciar sesión en el contexto de Django
-        login(request, user)
-        
-        return JsonResponse({
-            'success': True, 
-            'message': 'Autenticación exitosa.', 
-            'redirect': reverse_lazy('lista_libros') 
-        })
-
-    except auth.InvalidIdTokenError:
-        return JsonResponse({'error': 'Token de Firebase inválido o expirado.'}, status=401)
-    except Exception as e:
-        return JsonResponse({'error': f'Error interno: {str(e)}'}, status=500)
+    success_url = reverse_lazy('home')

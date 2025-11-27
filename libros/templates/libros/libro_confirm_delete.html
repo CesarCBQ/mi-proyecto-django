@@ -25,7 +25,7 @@
                         <button type="submit" class="btn btn-danger btn-lg">Sí, Eliminar Permanentemente</button>
                         
                         {# Botón de Cancelar: Vuelve a la página de detalle del libro #}
-                        <a href="{% url 'detalle_libro' slug=object.slug %}" class="btn btn-secondary btn-lg">Cancelar</a>
+                        <a href="{% url 'libros:detalle_libro' libro.slug %}" class="btn btn-secondary btn-lg">Cancelar</a>
                     </div>
                 </form>
             </div>

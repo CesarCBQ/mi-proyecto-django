@@ -19,7 +19,21 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+# Importamos la vista específica de la lista de libros 
+# para poder nombrar la ruta raíz como 'home' directamente.
+# Suponiendo que LibroListView está en libros.views
+from libros.views import LibroListView 
+
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('libros.urls')), 
+    
+    # 🚨 CORRECCIÓN 1: Definir explícitamente la raíz como 'home'.
+    # Apuntamos la ruta base ('') directamente a la vista, dándole el nombre 'home'.
+    path('', LibroListView.as_view(), name='home'),
+    
+    # 🚨 CORRECCIÓN 2: Incluir las URLs de 'libros/' bajo un prefijo,
+    # para que las rutas CRUD/Detalle no colisionen con 'home'.
+    # Si la ruta raíz (home) ya maneja la lista de libros, 
+    # movemos las demás URLs de libros a un prefijo.
+    path('libros/', include('libros.urls', namespace='libros')), 
 ]

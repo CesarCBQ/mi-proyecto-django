@@ -28,7 +28,7 @@
                     <p class="card-text"><small class="text-muted">Categoría: {{ libro.categoria.nombre }}</small></p>
                     
                     {# 💥 Enlace para ver el detalle 💥 #}
-                    <a href="{% url 'detalle_libro' slug=libro.slug %}" class="btn btn-primary btn-sm">Ver Detalles</a>
+                    <a href="{% url 'libros:detalle_libro' libro.slug %}" class="btn btn-primary btn-sm">Ver Detalles</a>
                 </div>
             </div>
         </div>
