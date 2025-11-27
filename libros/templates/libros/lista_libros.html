@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Listado de Libros{% endblock %}
+
+{% block content %}
+    <h1 class="mb-4">📚 Listado de Libros</h1>
+
+    {# 🔑 BLOQUE DE ADMINISTRACIÓN: Crear Elementos 🔑 #}
+    {% if user.is_superuser %}
+        <div class="mb-4 d-flex justify-content-end">
+            {# 💥 CRÍTICO: Añadir el botón principal para Crear Libro 💥 #}
+            <a href="{% url 'crear_libro' %}" class="btn btn-success me-3">➕ Crear Libro</a>
+            
+            {# Botones auxiliares agrupados o con estilo diferente #}
+            <a href="{% url 'crear_autor' %}" class="btn btn-outline-warning me-2">Crear Autor</a>
+            <a href="{% url 'crear_categoria' %}" class="btn btn-outline-warning">Crear Categoría</a>
+        </div>
+        <hr>
+    {% endif %}
+    
+    <div class="row">
+        {% for libro in libros %}
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">{{ libro.titulo }}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">Autor: {{ libro.autor.nombre }}</h6>
+                    <p class="card-text"><small class="text-muted">Categoría: {{ libro.categoria.nombre }}</small></p>
+                    
+                    {# 💥 Enlace para ver el detalle 💥 #}
+                    <a href="{% url 'detalle_libro' slug=libro.slug %}" class="btn btn-primary btn-sm">Ver Detalles</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        {# Este mensaje se muestra si no hay ningún libro en la base de datos #}
+        <p class="alert alert-info">Aún no hay libros en la biblioteca. ¡Crea el primero!</p>
+        {% endfor %}
+    </div>
+
+    {# 🚀 BLOQUE DE PAGINACIÓN (NECESARIO PARA ListView con paginate_by) 🚀 #}
+    {% if is_paginated %}
+    <nav aria-label="Paginación de libros" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {# Botón Anterior #}
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">Anterior</span>
+                </li>
+            {% endif %}
+
+            {# Indicador de página actual #}
+            <li class="page-item active" aria-current="page">
+                <span class="page-link">{{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+            </li>
+
+            {# Botón Siguiente #}
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">Siguiente</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">Siguiente</span>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+    
+{% endblock content %}

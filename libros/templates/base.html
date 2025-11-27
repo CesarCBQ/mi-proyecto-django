@@ -1,60 +1,113 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" 
-          rel="stylesheet" 
-          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" 
-          crossorigin="anonymous">
-
     <title>{% block title %}Biblioteca Digital{% endblock %}</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
 
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="{% url 'home' %}">📚 Biblioteca</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'lista_libros' %}">Libros</a>
-                    </li>
-                    {% if user.is_authenticated %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Mi Perfil ({{ user.username }})</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'admin:logout' %}">Cerrar Sesión</a>
-                    </li>
-                    {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'admin:login' %}">Iniciar Sesión</a>
-                    </li>
-                    {% endif %}
-                </ul>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="{% url 'lista_libros' %}">📚 Mi Biblioteca</a>
+                <div class="collapse navbar-collapse">
+                    <ul class="navbar-nav ms-auto">
+                        {% if user.is_authenticated %}
+                            <li class="nav-item">
+                                <span class="navbar-text me-3">Bienvenido, {{ user.username }}</span>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link btn btn-sm btn-outline-danger" href="{% url 'admin:logout' %}">Cerrar Sesión</a>
+                            </li>
+                        {% else %}
+                            <li class="nav-item">
+                                <button id="firebase-login-btn" class="btn btn-primary">Iniciar Sesión (Google)</button>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
             </div>
-        </div>
-    </nav>
-    
+        </nav>
+    </header>
+
     <main class="container mt-4">
         {% block content %}
         {% endblock content %}
     </main>
 
-    <footer class="bg-light text-center py-3 mt-5">
-        <div class="container">
-            <p>&copy; 2025 Proyecto Final Django | Ingeniería de Software</p>
-        </div>
-    </footer>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" 
-            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" 
-            crossorigin="anonymous"></script>
+    <script>
+        // 2. Configuración de tu proyecto de Firebase (REEMPLAZA ESTOS VALORES)
+        const firebaseConfig = {
+            apiKey: "TU_API_KEY_DEL_PROYECTO",
+            authDomain: "django-9946d.firebaseapp.com", // Reemplaza con tu project_id
+            projectId: "django-9946d", 
+            storageBucket: "django-9946d.appspot.com",
+            messagingSenderId: "TU_SENDER_ID",
+            appId: "TU_APP_ID"
+        };
 
+        // 3. Inicializar Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const provider = new firebase.auth.GoogleAuthProvider();
+
+        // 4. Función que maneja el envío del token al backend de Django
+        async function sendTokenToDjango(token) {
+            const csrfToken = '{{ csrf_token }}'; // Obtiene el token CSRF de Django
+
+            try {
+                const response = await fetch('{% url "firebase_login" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken // Envía el token CSRF para seguridad
+                    },
+                    body: JSON.stringify({ id_token: token })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    console.log("Login exitoso en Django. Redirigiendo...");
+                    // 5. Redirigir al usuario
+                    window.location.href = data.redirect; 
+                } else {
+                    alert('Error en el backend de Django: ' + data.error);
+                }
+
+            } catch (error) {
+                console.error("Error al enviar el token a Django:", error);
+                alert('Fallo de conexión.');
+            }
+        }
+
+        // 6. Listener para el botón de login
+        document.getElementById('firebase-login-btn')?.addEventListener('click', async () => {
+            try {
+                // Abre el pop-up de Google Login
+                const result = await auth.signInWithPopup(provider);
+                
+                // Obtiene el ID Token del usuario de Firebase
+                const token = await result.user.getIdToken();
+                
+                // Envía el token al servidor de Django
+                await sendTokenToDjango(token);
+
+            } catch (error) {
+                // Manejar errores de pop-up, cierre o denegación
+                console.error("Error de autenticación de Firebase:", error.code, error.message);
+                alert("Fallo el inicio de sesión. Inténtalo de nuevo.");
+            }
+        });
+    </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

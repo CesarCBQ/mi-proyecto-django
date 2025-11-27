@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Listado de Libros{% endblock %}
+
+{% block content %}
+    <h1 class="mb-4">📚 Listado de Libros</h1>
+
+    <div class="row">
+        {% for libro in libros %}
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">{{ libro.titulo }}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">Autor: {{ libro.autor.nombre }}</h6>
+                    <p class="card-text"><small class="text-muted">Categoría: {{ libro.categoria.nombre }}</small></p>
+                    
+                    {# 💥 Enlace para ver el detalle 💥 #}
+                    <a href="{% url 'detalle_libro' slug=libro.slug %}" class="btn btn-primary btn-sm">Ver Detalles</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        {# Este mensaje se muestra si no hay ningún libro en la base de datos #}
+        <p class="alert alert-info">Aún no hay libros en la biblioteca. ¡Crea el primero!</p>
+        {% endfor %}
+    </div>
+
+    {# Opcional: Agregar enlaces para crear si eres admin/superusuario #}
+    {% if user.is_superuser %}
+        <hr>
+        <p>Enlaces de Administración:</p>
+        <a href="{% url 'crear_autor' %}" class="btn btn-warning btn-sm">Crear Autor</a>
+        <a href="{% url 'crear_categoria' %}" class="btn btn-warning btn-sm">Crear Categoría</a>
+        {# Añadir aquí el enlace para crear libro una vez que lo implementemos #}
+    {% endif %}
+
+{% endblock content %}

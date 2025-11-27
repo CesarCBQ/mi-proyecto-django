@@ -3,6 +3,11 @@ Django settings for digital_library project.
 """
 
 from pathlib import Path
+import os
+# 🟢 IMPORTACIONES NECESARIAS PARA FIREBASE 🟢
+import firebase_admin
+from firebase_admin import credentials 
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -34,7 +39,6 @@ INSTALLED_APPS = [
     # Mis Apps (Pueden ir al final)
     'core',
     'libros',
-    'usuarios',
 ]
 
 # 💥 MIDDLEWARE CORREGIDO Y ORDENADO (Soluciona E408, E409, E410) 💥
@@ -130,8 +134,20 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
-
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+# ----------------------------------------------------
+# 🔑 INICIALIZACIÓN DE FIREBASE ADMIN SDK
+# ----------------------------------------------------
+try:
+    if not firebase_admin._apps:
+        # 1. Carga las credenciales usando la ruta definida arriba
+        #    Asegúrate de que el archivo firebase_key.json esté en la raíz del proyecto.
+        cred = credentials.Certificate(FIREBASE_KEY_PATH)
+        
+        # 2. Inicializa la aplicación de Firebase
+        firebase_admin.initialize_app(cred)
+        print("Firebase Admin SDK inicializado.")
+except FileNotFoundError:
+    print(f"ADVERTENCIA: Archivo de credenciales de Firebase no encontrado en {FIREBASE_KEY_PATH}")
+except Exception as e:
+    # Maneja otros errores de inicialización o permisos
+    print(f"ERROR al inicializar Firebase: {e}")

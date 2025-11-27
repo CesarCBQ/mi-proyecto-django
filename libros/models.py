@@ -1,6 +1,10 @@
 from django.db import models
+from django.urls import reverse 
+from django.utils.text import slugify # 👈 IMPORTACIÓN AGREGADA AQUÍ
 
+# --- 1. MODELO AUTOR (CORREGIDO) ---
 class Autor(models.Model):
+    # 🚨 CAMPOS AÑADIDOS
     nombre = models.CharField(max_length=100)
     biografia = models.TextField(blank=True)
     fecha_nacimiento = models.DateField(null=True, blank=True)
@@ -11,7 +15,9 @@ class Autor(models.Model):
     class Meta:
         verbose_name_plural = "Autores"
 
+# --- 2. MODELO CATEGORIA (CORREGIDO) ---
 class Categoria(models.Model):
+    # 🚨 CAMPO AÑADIDO
     nombre = models.CharField(max_length=50, unique=True)
 
     def __str__(self):
@@ -20,26 +26,33 @@ class Categoria(models.Model):
     class Meta:
         verbose_name_plural = "Categorías"
 
+# --- 3. MODELO LIBRO (Ya estaba correcto, con get_absolute_url) ---
 class Libro(models.Model):
     titulo = models.CharField(max_length=200)
     isbn = models.CharField(max_length=13, unique=True)
     fecha_publicacion = models.DateField()
     
-    # Relación One-to-Many con Autor
+    # Relaciones
     autor = models.ForeignKey(Autor, on_delete=models.CASCADE, related_name='libros') 
-    
-    # Relación Many-to-One con Categoría
     categoria = models.ForeignKey(Categoria, on_delete=models.SET_NULL, null=True, related_name='libros')
     
-    # Para la URL dinámica con slug
+    # Campo slug
     slug = models.SlugField(max_length=200, unique=True, blank=True) 
 
     def __str__(self):
         return self.titulo
     
-    # Opcional: Para generar el slug automáticamente
+    # Para generar el slug automáticamente
     def save(self, *args, **kwargs):
-        from django.utils.text import slugify
+        # La importación de slugify se movió al inicio del archivo para mayor limpieza
         if not self.slug:
             self.slug = slugify(self.titulo)
         super().save(*args, **kwargs)
+
+    # MÉTODO DE REDIRECCIÓN
+    def get_absolute_url(self):
+        """Retorna la URL canónica del objeto Libro (su detalle)."""
+        return reverse('detalle_libro', kwargs={'slug': self.slug})
+    
+    class Meta:
+        verbose_name_plural = "Libros"

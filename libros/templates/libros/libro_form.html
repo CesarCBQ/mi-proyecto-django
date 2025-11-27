@@ -1,0 +1,43 @@
+{% extends "base.html" %} 
+
+{% block title %}
+    {# Si object existe (Edición), muestra el título del libro, si no (Creación), muestra 'Crear Libro' #}
+    {% if object %}
+        Editar Libro: {{ object.titulo }}
+    {% else %}
+        Crear Libro
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+
+    {% if object %}
+        <h1>Editar Libro: {{ object.titulo }}</h1>
+    {% else %}
+        <h1>Crear Nuevo Libro</h1>
+    {% endif %}
+    
+    <form method="post">
+        
+        {% csrf_token %}
+        
+        <div class="form-fields">
+            {{ form.as_p }} 
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Guardar</button>
+        
+        {# 💥 LÍNEA CRÍTICA CORREGIDA (Probablemente tu Línea 17) 💥 #}
+        {# 
+           Si el objeto existe (Edición), el botón Cancelar va al detalle del libro.
+           Si el objeto NO existe (Creación), el botón Cancelar va a la lista principal. 
+        #}
+        {% if object %}
+            <a href="{% url 'detalle_libro' object.slug %}" class="btn btn-secondary">Cancelar</a>
+        {% else %}
+            <a href="{% url 'lista_libros' %}" class="btn btn-secondary">Cancelar</a>
+        {% endif %}
+
+    </form>
+
+{% endblock content %}

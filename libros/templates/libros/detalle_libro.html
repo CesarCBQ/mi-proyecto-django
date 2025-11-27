@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Detalle de Libro: {{ libro.titulo }}{% endblock %}
+
+{% block content %}
+    {# Contenido del Libro #}
+    <div class="card p-4 shadow-lg mb-4">
+        <h1 class="mb-3">{{ libro.titulo }}</h1>
+        <hr>
+        
+        <p class="lead"><strong>Autor:</strong> {{ libro.autor.nombre }}</p>
+        <p><strong>Categoría:</strong> {{ libro.categoria.nombre }}</p>
+        <p><strong>ISBN:</strong> {{ libro.isbn }}</p>
+        <p><strong>Fecha de Publicación:</strong> {{ libro.fecha_publicacion }}</p>
+    </div>
+
+    {# 💥 Bloque de Administración (Editar/Eliminar) 💥 #}
+    {% if user.is_superuser %}
+        <div class="alert alert-danger p-3 d-flex justify-content-start align-items-center">
+            <h5 class="mb-0 me-3">Opciones de Administrador:</h5>
+            
+            <a href="{% url 'editar_libro' slug=libro.slug %}" class="btn btn-warning me-2">📝 Editar Libro</a> 
+            
+            <a href="{% url 'eliminar_libro' pk=libro.pk %}" class="btn btn-danger">🗑️ Eliminar Libro</a>
+        </div>
+    {% endif %}
+
+{% endblock %}
