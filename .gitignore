@@ -1,0 +1,39 @@
+# Carpetas y archivos generales de Python
+#####################################
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+.DS_Store
+
+# Entornos virtuales
+###################
+# Evita subir carpetas de entorno virtual comunes
+venv/
+env/
+/bin/
+/include/
+/lib/
+/lib64/
+
+# Archivos y carpetas específicos de Django
+########################################
+# Base de datos SQLite (si la usas)
+db.sqlite3
+
+# Archivos de la configuración de la clave secreta
+# (Si usas un archivo local para variables de entorno)
+.env
+.env.local
+
+# Carpeta donde Django almacena archivos multimedia subidos por el usuario
+/media/
+
+# Carpeta de archivos estáticos recolectados (si usas collectstatic)
+# Aunque es común subir 'static/' si contiene archivos fuente CSS/JS, 
+# la carpeta 'staticfiles' generada no se debe subir.
+/staticfiles/
+
+# Archivos de registro
+*.log
