@@ -48,6 +48,11 @@ def detalle_libro(request, slug):
     
     return render(request, 'libros/detalle_libro.html', context)
 
+# 🔑 VISTA FUNCIONAL AÑADIDA - Renderiza la plantilla de login 🔑
+def login_page(request):
+    """Renderiza la plantilla de inicio de sesión para Firebase Auth."""
+    return render(request, 'libros/login.html')
+
 # ----------------------------------------------------------------------
 # --- VISTAS ADMINISTRACIÓN (CRUD) ---
 # ----------------------------------------------------------------------

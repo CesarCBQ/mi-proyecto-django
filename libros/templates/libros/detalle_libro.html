@@ -21,7 +21,8 @@
             
             <a href="{% url 'editar_libro' slug=libro.slug %}" class="btn btn-warning me-2">📝 Editar Libro</a> 
             
-            <a href="{% url 'eliminar_libro' pk=libro.pk %}" class="btn btn-danger">🗑️ Eliminar Libro</a>
+            {# 🟢 ¡CORREGIDO! Usamos slug en lugar de pk para coincidir con la URL. 🟢 #}
+            <a href="{% url 'eliminar_libro' slug=libro.slug %}" class="btn btn-danger">🗑️ Eliminar Libro</a>
         </div>
     {% endif %}
 
