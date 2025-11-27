@@ -9,11 +9,11 @@
     {% if user.is_superuser %}
         <div class="mb-4 d-flex justify-content-end">
             {# 💥 CRÍTICO: Añadir el botón principal para Crear Libro 💥 #}
-            <a href="{% url 'crear_libro' %}" class="btn btn-success me-3">➕ Crear Libro</a>
+            <a href="{% url 'libros:crear_libro' %}" class="btn btn-success me-3">➕ Crear Libro</a>
             
             {# Botones auxiliares agrupados o con estilo diferente #}
-            <a href="{% url 'crear_autor' %}" class="btn btn-outline-warning me-2">Crear Autor</a>
-            <a href="{% url 'crear_categoria' %}" class="btn btn-outline-warning">Crear Categoría</a>
+            <a href="{% url 'libros:crear_autor' %}" class="btn btn-outline-warning me-2">Crear Autor</a>
+            <a href="{% url 'libros:crear_categoria' %}" class="btn btn-outline-warning">Crear Categoría</a>
         </div>
         <hr>
     {% endif %}
