@@ -4,10 +4,10 @@ Django settings for digital_library project.
 
 from pathlib import Path
 import os
-# 🟢 IMPORTACIONES NECESARIAS PARA FIREBASE 🟢
+# 🟢 IMPORTACIONES NECESARIAS PARA FIREBASE Y TESTS 🟢
 import firebase_admin
 from firebase_admin import credentials 
-
+import sys # ⬅️ Importación para identificar modo de prueba
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'libros',
 ]
 
-# 💥 MIDDLEWARE CORREGIDO Y ORDENADO (Soluciona E408, E409, E410) 💥
+# 💥 MIDDLEWARE CORREGIDO Y ORDENADO 💥
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     # Sesión debe ir antes de Auth
@@ -135,19 +135,25 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # ----------------------------------------------------
-# 🔑 INICIALIZACIÓN DE FIREBASE ADMIN SDK
+# 🧪 CONFIGURACIÓN PARA AMBIENTE DE PRUEBAS (TESTING) Y FIREBASE 
 # ----------------------------------------------------
-try:
-    if not firebase_admin._apps:
-        # 1. Carga las credenciales usando la ruta definida arriba
-        #    Asegúrate de que el archivo firebase_key.json esté en la raíz del proyecto.
-        cred = credentials.Certificate(FIREBASE_KEY_PATH)
-        
-        # 2. Inicializa la aplicación de Firebase
-        firebase_admin.initialize_app(cred)
-        print("Firebase Admin SDK inicializado.")
-except FileNotFoundError:
-    print(f"ADVERTENCIA: Archivo de credenciales de Firebase no encontrado en {FIREBASE_KEY_PATH}")
-except Exception as e:
-    # Maneja otros errores de inicialización o permisos
-    print(f"ERROR al inicializar Firebase: {e}")
+
+# Identifica si el comando 'test' está siendo ejecutado
+TESTING = 'test' in sys.argv 
+
+# Configuración de Firebase
+FIREBASE_CONFIG = {
+    'CREDENTIAL_FILE': FIREBASE_KEY_PATH,
+    # 🛑 Deshabilita la sincronización si estamos en modo testing
+    'SYNC_ENABLED': not TESTING,
+}
+
+# La lógica de inicialización se movería a un archivo de configuración de Firebase 
+# o se llamaría on-demand, pero se remueve del settings.py
+
+# ❌ Se ha quitado el bloque 'try...except' de inicialización directa de Firebase aquí.
+
+# Default primary key field type
+# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
